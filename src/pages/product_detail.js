@@ -48,7 +48,7 @@ import axios from 'axios';
                             <i className="fa fa-star-half-o"></i>
                             <span>(18 reviews)</span>
                         </div>
-                        <div className="product__details__price">$50.00</div>
+                        <div className="product__details__price">Rs {data.price}</div>
                         <p>{data.more_details}</p>
                         {/* <div className="product__details__quantity">
                             <div className="quantity">
