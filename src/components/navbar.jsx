@@ -6,13 +6,19 @@ import Dialog from '@mui/material/Dialog';
 import DialogActions from '@mui/material/DialogActions';
 import DialogContent from '@mui/material/DialogContent';
 import DialogTitle from '@mui/material/DialogTitle';
-
-
+import axios from 'axios';
+import { useEffect, useState } from 'react';
+import { Outlet } from "react-router";
+import { Fragment } from 'react';
 
 function Navbar() {
 
+    var base_url =  "http://127.0.0.1:8000"
 
     const [open, setOpen] = React.useState(false);
+    const [isSignin, setSignin] = React.useState(false)
+    const [Category, setCategory] = useState(false)
+
 
     const handleClickOpen = () => {
       setOpen(true);
@@ -26,42 +32,47 @@ function Navbar() {
             setOpen(false);
     }
 
+
+
+    const SingIned = (response) => {
+        localStorage.setItem('user', JSON.stringify(response.data));
+        setSignin(true)
+        setOpen(false);
+
+    }
+
+    function Signin_handler(event){
+        event.preventDefault()
+        const email = event.target.email.value
+        const password = event.target.password.value
+        const data = { email: email, password: password}
+        axios.post(base_url+'/user/signin/', data)
+
+        .then(response => SingIned(response))
+        .catch(error => {
+            console.error('sign in error', error);
+        });       
+
+    }
+
+    useEffect(() => {
+        // authenctication check
+        try {
+            const user = JSON.parse(localStorage.getItem('user'))
+            if(user){
+                setSignin(true)
+            }
+          }
+          catch(err) {
+            setSignin(false)
+          }
+      }, [isSignin]);
+      
   return (
     <>
      {/*  <!-- Header Section Begin --> */}
     <header className="header">
-        <div className="header__top d-none">
-            <div className="container">
-                <div className="row">
-                    <div className="col-lg-6 col-md-6">
-                        <div className="header__top__left">
-                            <ul>
-                                <li><i className="fa fa-envelope"></i> mohan.pandit@visiontrek.in</li>
-                                <li>Free Shipping for all Order of Rs999</li>
-                            </ul>
-                        </div>
-                    </div>
-                    <div className="col-lg-6 col-md-6">
-                        <div className="header__top__right">
-                            <div className="header__top__right__social">
-                                <a href="/"><i className="fa fa-facebook"></i></a>
-                                <a href="/"><i className="fa fa-twitter"></i></a>
-                                <a href="/"><i className="fa fa-linkedin"></i></a>
-                                <a href="/"><i className="fa fa-pinterest-p"></i></a>
-                            </div>
-                        
-                            <div className="header__top__right__auth">
-                                {/* <a href="/"><i className="fa-solid fa-user"></i> Login</a> */}
-                                <Button variant="outlined" onClick={handleClickOpen}>
-                                    Open form dialog
-                                </Button>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
-
+    
         <div className="container">
             <div className="row">
                 <div className="col-lg-3">
@@ -106,17 +117,17 @@ function Navbar() {
 
 
      {/* <!-- Hero Section Begin --> */}
-     <section className="hero">
+     <section className="hero hero-normal">
         <div className="container">
             <div className="row">
                 <div className="col-lg-3">
                     <div className="hero__categories">
                         <div className="hero__categories__all">
-                            <i className="fa fa-bars"></i>
-                            <span>All departments</span>
-
+                            <i className="fa fa-bars" onClick={() => Category ? setCategory(false):setCategory(true)}></i>
+                            <span>Categories</span>
+                            <i className="fa-solid fa-caret-down float-right" onClick={() => Category ? setCategory(false):setCategory(true)}></i>
                         </div>
-                        <ul>
+                        <ul className={Category ? 'd-block overflow-hidden': "d-none"}>
                             <li><a href="/">Fresh Meat</a></li>
                             <li><a href="/">Vegetables</a></li>
                             <li><a href="/">Fruit & Nut Gifts</a></li>
@@ -145,16 +156,19 @@ function Navbar() {
                         </div>
                         <div className="hero__search__phone">
                             <div className="hero__search__phone__icon">
-                            <i class="fa-solid fa-user"></i>
+                            <i className="fa-solid fa-user"></i>
                             </div>
+
                             <div className="hero__search__phone__text">
-                            <button type="submit" className="site-btn" onClick={handleClickOpen}>Login</button>
+                                {isSignin ? <div className='mt-2'>{JSON.parse(localStorage.getItem('user')).first_name}
+                                </div>: <button type="submit" className="site-btn" onClick={handleClickOpen}>Sing In</button>}
+                            
                             {/* <Button  className="site-btn" onClick={handleClickOpen}  variant="contained">Login</Button> */}
 
                             <Dialog open={open} onClose={handleClose }  aria-labelledby="simple-dialog-title" >
                                 <DialogTitle>Login</DialogTitle>
-                                        <DialogContent>
-                                        
+                                       <form onSubmit={Signin_handler}>
+                                             <DialogContent>
                                         <TextField
                                             autoFocus
                                             margin="dense"
@@ -163,6 +177,7 @@ function Navbar() {
                                             type="email"
                                             fullWidth
                                             variant="outlined"
+                                            name="email"
                                         />
                                         
                                         <TextField
@@ -173,25 +188,34 @@ function Navbar() {
                                             type="password"
                                             fullWidth
                                             variant="outlined"
+                                            name='password'
+                                            
                                         />
 
                                         </DialogContent>
                                         <DialogActions>
                                         <Button onClick={handleClose}>Close</Button>
-                                        <Button onClick={handleClose}>Login</Button>
-                                        </DialogActions>
+                                        <Button type='submit'>Login</Button>
+                                        </DialogActions> 
+                                        </form>
+                                      
                             </Dialog>
                             </div>
                         </div>
                     </div>
-                    <div className="hero__item set-bg" data-setbg={require('./images/banner.jpg')}>
+                    {/* <div className="hero__item set-bg" data-setbg={require('./images/banner.jpg')}>
                         <img src={require('./images/banner.jpg')} alt='banner'/>
-                    </div>
+                    </div> */}
                 </div>
             </div>
         </div>
     </section>
     {/* <!-- Hero Section End --> */}
+ 
+    <Outlet/>
+    <Fragment>
+
+  </Fragment>
 
     </>
   )

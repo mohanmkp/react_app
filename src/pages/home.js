@@ -1,22 +1,27 @@
 import React from 'react'
 import { useState, useEffect } from 'react';
 import axios from 'axios';
+import { Link } from "react-router-dom";
+import * as commaon from "../components/commaon"
+
+
 
 function Home() {
+    // var base_url =  "http://34.122.53.242:8000"
+    var base_url =  commaon.base_url;
+
 
 
     const [data, setData] = useState(null);
-   
     useEffect(() => {
-        axios.get('http://54.236.250.116:8000/product/')
+        axios.get(base_url+'/product/')
           .then(response => {
             setData(response.data);
-            console.log(response.data)
           })
           .catch(error => {
             console.error(error);
           });
-      }, []);
+      }, [base_url]);
   
   return (
     <>
@@ -67,19 +72,22 @@ function Home() {
 
             {data &&
                 data.map((product) => (
+                
                 <div className="col-lg-3 col-md-4 col-sm-6 mix oranges fresh-meat">
                 <div className="featured__item">
                     <div className="featured__item__pic set-bg" data-setbg={product.image}>
-                        <img src={product.image} alt='hello' />
+                        <Link to={`/product/${product.id}`}>
+                          <img src={base_url+product.image} alt='hello' />
+                        </Link>
                         <ul className="featured__item__pic__hover">
-                            <li><a href="/"><i className="fa fa-heart"></i></a></li>
-                            <li><a href="/"><i className="fa fa-retweet"></i></a></li>
-                            <li><a href="/"><i className="fa fa-shopping-cart"></i></a></li>
+                            <li><i className="fa fa-heart"></i></li>
+                            <li><i className="fa fa-retweet"></i></li>
+                            <li><i className="fa fa-shopping-cart"></i></li>
                         </ul>
                     </div>
                     <div className="featured__item__text">
-                        <h6><a href="/">{product.title}</a></h6>
-                        <h5>$30.00</h5>
+                        <h6 className='text-truncate'><Link to="/product">{product.title}</Link></h6>
+                        <h5>₹ {product.price}</h5>
                     </div>
                 </div>
                 </div>
@@ -87,7 +95,7 @@ function Home() {
 
               
               
-              
+
             </div>
         </div>
     </section>
